@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=@CLI_BIN@
+Exec=@CLI_BIN@ convert %i %o
+MimeType=application/vnd.corel-draw;application/x-cdr;application/cdr;image/x-cdr;image/cdr;zz-application/zz-winassoc-cdr;application/pdf;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.corel-draw">
+    <comment>CorelDRAW drawing</comment>
+    <comment xml:lang="pl">Rysunek CorelDRAW</comment>
+    <alias type="application/x-cdr"/>
+    <alias type="application/cdr"/>
+    <alias type="image/x-cdr"/>
+    <alias type="image/cdr"/>
+    <alias type="zz-application/zz-winassoc-cdr"/>
+    <generic-icon name="image-x-generic"/>
+    <glob pattern="*.cdr"/>
+    <glob pattern="*.CDR"/>
+  </mime-type>
+</mime-info>
