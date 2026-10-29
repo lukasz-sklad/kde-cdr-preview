@@ -1,35 +1,32 @@
 # kde-cdr-preview — Natywny podgląd plików CorelDRAW (`.cdr`) w KDE Plasma 6 / SteamOS
 
-Kompletny zestaw wtyczek dla **KDE Plasma 6 (Qt6 / KDE Frameworks 6)** zapewniający pełny podgląd i miniaturki dla plików **CorelDRAW (`.cdr`)** oraz **PDF (`.pdf`)** w systemie Linux / **SteamOS** — działający identycznie jak natywna obsługa plików `.xcf` (GIMP) czy `.psd` (Photoshop).
+Kompletny zestaw dla **KDE Plasma 6 (Qt6 / KDE Frameworks 6)** zapewniający stabilny i natywny podgląd oraz miniaturki dla plików **CorelDRAW (`.cdr`)** oraz **PDF (`.pdf`)** w systemie Linux / **SteamOS** — działający identycznie jak natywna obsługa plików `.xcf` (GIMP) czy `.psd` (Photoshop).
 
-Do renderowania krzywych wektorowych wtyczki wykorzystują szybki silnik CLI **`vectorcraft-cli`** (`~/bin/vectorcraft-cli`).
+Do renderowania krzywych wektorowych wtyczki wykorzystują silnik CLI **`vectorcraft-cli`** (`~/bin/vectorcraft-cli`).
 
 ---
 
-## Co daje ten pakiet?
+## Jak to działa?
 
-1. **`kimg_cdr.so` (`~/.local/lib/qt6/plugins/imageformats/kimg_cdr.so`)**
+1. **`cdrthumbnail.thumbnailer` (`~/.local/share/thumbnailers/cdrthumbnail.thumbnailer`)**
+   - Natywny generator miniaturek zgodny ze standardem Freedesktop / KDE Frameworks 6 (`KIO::PreviewJob`).
+   - Generuje miniaturki w osobnym procesie, jest w 100% bezpieczny (nie powoduje awarii procesu `kioworker`) i działa niezależnie od wersji bibliotek C++/Qt.
+   - Odpowiada za miniaturki na żywo w menedżerze plików **Dolphin**.
+
+2. **`kimg_cdr.so` (`~/.local/lib/qt6/plugins/imageformats/kimg_cdr.so`)**
    - Natywna wtyczka formatu obrazu **Qt6 `QImageIOPlugin`** (odpowiednik systemowego `kimg_xcf.so`).
-   - Sprawia, że każda aplikacja Qt6/KDE potrafi otworzyć plik `.cdr` bezpośrednio jako `QImage` / `QImageReader`.
-   - Pozwala przeglądać pliki `.cdr` bezpośrednio w przeglądarce obrazów **Gwenview** (*Otwórz za pomocą → Gwenview*), w panelu bocznym **Informacje (`F11`)** w Dolphinie oraz w oknach dialogowych *Otwórz plik*.
+   - Umożliwia silnikowi Qt6 (`QImage` / `QImageReader`) bezpośrednie otwieranie plików `.cdr` jako obrazów.
+   - Pozwala na podgląd w **Gwenview** (*Otwórz za pomocą → Gwenview*), w panelu bocznym **Informacje (`F11`)** w Dolphinie oraz w systemowych oknach wyboru plików.
 
-2. **`cdrthumbnail.thumbnailer` (`~/.local/share/thumbnailers/cdrthumbnail.thumbnailer`)**
-   - Natywny wpis generatora miniaturek obsługiwany bezpośrednio przez `KIO::PreviewJob` w KDE Frameworks 6.
-   - Działa bez konieczności modyfikowania partycji systemowej (read-only na SteamOS) i jest całkowicie odporny na aktualizacje wersji Qt6 podczas aktualizacji systemu SteamOS.
-
-3. **`cdrthumbnail.so` (`~/.local/lib/qt6/plugins/kf6/thumbcreator/cdrthumbnail.so`)**
-   - Natywna wtyczka C++ `KIO::ThumbnailCreator` dla procesów `kioworker`.
-
-4. **`coreldraw-cdr.xml` (`~/.local/share/mime/packages/coreldraw-cdr.xml`)**
-   - Definicja i aliasy typów MIME CorelDRAW (`application/vnd.corel-draw`, `application/x-cdr`, `image/x-cdr` itd.).
+3. **`coreldraw-cdr.xml` (`~/.local/share/mime/packages/coreldraw-cdr.xml`)**
+   - Rejestracja typów MIME i aliasów CorelDRAW w systemie (`application/vnd.corel-draw`, `application/x-cdr`, `image/x-cdr` itd.).
 
 ---
 
 ## Wymagania
 
-- **KDE Plasma 6** (Qt 6.x + KDE Frameworks 6)
-- Binarka **`vectorcraft-cli`** zainstalowana w `~/bin/vectorcraft-cli` (lub dostępna w `$PATH`)
-- Do przebudowy ze źródeł (`./install.sh --rebuild`): lokalny `g++` lub `podman` (na SteamOS skrypt domyślnie instaluje gotowe binarki z katalogu `prebuilt/` i automatycznie dopasowuje nagłówek wersji Qt6 w sekcji ELF `.note.qt.metadata`).
+- **KDE Plasma 6**
+- Binarka **`vectorcraft-cli`** zainstalowana w `~/bin/vectorcraft-cli` (lub w `$PATH`)
 
 ---
 
@@ -41,7 +38,7 @@ cd kde-cdr-preview
 ./install.sh
 ```
 
-Jeśli chcesz wymusić ponowną kompilację wtyczek C++ ze źródeł (np. przez kontener Podman na SteamOS):
+W celu przebudowania wtyczki obrazu `kimg_cdr.so` ze źródeł C++ (przez lokalny kompilator lub kontener Podmana):
 
 ```bash
 ./install.sh --rebuild
@@ -65,14 +62,12 @@ kde-cdr-preview/
 ├── uninstall.sh                                # Skrypt deinstalacyjny
 ├── README.md                                   # Dokumentacja
 ├── prebuilt/
-│   ├── kimg_cdr.so                             # Skompilowana wtyczka Qt6 QImageIOPlugin (x86_64)
-│   └── cdrthumbnail.so                         # Skompilowana wtyczka KF6 KIO::ThumbnailCreator (x86_64)
+│   └── kimg_cdr.so                             # Skompilowana wtyczka Qt6 QImageIOPlugin (x86_64)
 ├── share/
 │   ├── mime/
 │   │   └── coreldraw-cdr.xml                   # Definicja MIME dla plików .cdr
 │   └── thumbnailers/
-│       └── cdrthumbnail.thumbnailer            # Definicja generatora miniaturek dla KIO
+│       └── cdrthumbnail.thumbnailer            # Generator miniaturek dla KDE Dolphin / KIO
 └── src/
-    ├── kimg_cdr.cpp                            # Kod źródłowy wtyczki Qt6 imageformats (kimg_cdr.so)
-    └── cdrthumbnail.cpp                        # Kod źródłowy wtyczki KF6 thumbcreator (cdrthumbnail.so)
+    └── kimg_cdr.cpp                            # Kod źródłowy wtyczki Qt6 imageformats (kimg_cdr.so)
 ```
